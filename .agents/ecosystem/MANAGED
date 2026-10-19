@@ -1,0 +1,4 @@
+.agents/ecosystem
+AGENTS.md
+scripts/gh.mjs
+scripts/run.sh
