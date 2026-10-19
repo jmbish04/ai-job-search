@@ -85,7 +85,14 @@ documents/postings/**
 # in documents/applications/<company>_<role>/, covered above. Kept because
 # tools/security_guards.py pins it in REQUIRED_IGNORE_RULES.
 documents/interview/**
+# Snapshot of the career data store (tools/core_resumes.py index): full job
+# history, contact details and tracked roles.
+documents/core-resumes/**
 !documents/**/.gitkeep
+
+# Local candidate profile built from core-resumes. Claude Code loads it
+# automatically; it must never reach the public fork.
+CLAUDE.local.md
 
 # Personal job search tracking
 job_search_tracker.csv
