@@ -26,14 +26,14 @@ DATA = {
     "brief": {"brief": {
         "identity": {"fullName": "Ada Example", "email": "ada@example.com", "careerStories": "STORY #1"},
         "positions": [{"employer": "Acme", "title": "Lead PM"}],
-        "context": {"forbidden": [{"term": "Project Zeus"}, "MatterSpace"], "artifacts": ["dup"]},
+        "context": {"forbidden": [{"term": "Project Falcon"}, "DeskSpace"], "artifacts": ["dup"]},
     }},
     "bullets": {"active": [
         {"id": 1, "content": "Shipped the intake portal.", "category": "Technical", "isActive": True},
         {"id": 2, "content": "Retired bullet.", "category": "Technical", "isActive": False},
     ]},
-    "artifacts": {"artifacts": [{"publicName": "matter platform", "internalName": "MatterSpace",
-                                 "neverSay": ["MatterSpace"], "branches": []}]},
+    "artifacts": {"artifacts": [{"publicName": "matter platform", "internalName": "DeskSpace",
+                                 "neverSay": ["DeskSpace"], "branches": []}]},
     "glossary": {"terms": [{"term": "20% project", "plainEnglish": "side time",
                             "neverRender": True, "suggestedReplacement": "concurrent assignment"}]},
     "document_rules": {"rules": [{"rule": "Name the spine."}]},
@@ -52,8 +52,8 @@ class DigestTests(unittest.TestCase):
 
     def test_codenames_are_listed_as_forbidden(self):
         self.assertIn("## Forbidden terms (never print)", self.md)
-        self.assertIn("Project Zeus, MatterSpace", self.md)
-        self.assertIn("**Never say:** MatterSpace", self.md)
+        self.assertIn("Project Falcon, DeskSpace", self.md)
+        self.assertIn("**Never say:** DeskSpace", self.md)
 
     def test_glossary_swap_is_rendered(self):
         self.assertIn("**Never render; write:** concurrent assignment", self.md)
