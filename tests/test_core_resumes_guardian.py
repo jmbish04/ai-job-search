@@ -19,6 +19,7 @@ from unittest import mock
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "tools"))
 
+import colby_secrets  # noqa: E402
 import core_resumes  # noqa: E402
 import guardian  # noqa: E402
 
@@ -134,6 +135,39 @@ class GuardianTests(unittest.TestCase):
         code, _, err = self.run_main(error=guardian.GuardianError("HTTP 429: breaker", refused=True))
         self.assertEqual(code, 3)
         self.assertIn("429", err)
+
+
+class SecretLookupTests(unittest.TestCase):
+    def lookup(self, results):
+        """Run require_secret against a fake `tokens` CLI that answers `results` in order."""
+        calls = iter(results)
+
+        def run(cmd, **kw):
+            code, out, err = next(calls)
+            return subprocess.CompletedProcess(cmd, code, out, err)
+        colby_secrets._CACHE.clear()
+        with mock.patch.dict("os.environ", {}, clear=True), \
+                mock.patch.object(colby_secrets.shutil, "which", return_value="/bin/tokens"), \
+                mock.patch.object(colby_secrets.subprocess, "run", side_effect=run):
+            return colby_secrets.require_secret("WORKER_API_KEY")
+
+    def test_one_empty_answer_is_retried(self):
+        self.assertEqual(self.lookup([(0, "", ""), (0, "k-123\n", "")]), "k-123")
+
+    def test_a_failed_lookup_is_not_reported_as_missing(self):
+        with self.assertRaises(colby_secrets.SecretUnavailable) as ctx:
+            tb = "Traceback (most recent call last):\n  File \"tokens\", line 384\nTimeoutError: timed out\n"
+            self.lookup([(1, "", tb), (1, "", tb)])
+        msg = str(ctx.exception)
+        self.assertIn("lookup failed", msg)
+        self.assertIn("TimeoutError: timed out", msg)
+        self.assertNotIn("Traceback", msg)
+        self.assertNotIn("is not set", msg)
+
+    def test_the_error_never_carries_stdout(self):
+        with self.assertRaises(colby_secrets.SecretUnavailable) as ctx:
+            self.lookup([(2, "SECRET-VALUE", ""), (2, "SECRET-VALUE", "")])
+        self.assertNotIn("SECRET-VALUE", str(ctx.exception))
 
 
 if __name__ == "__main__":
