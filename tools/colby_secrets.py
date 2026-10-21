@@ -45,7 +45,7 @@ def _from_cli(name: str) -> str:
         # The last line of a traceback is the cause (measured: `TimeoutError:
         # timed out` when the key store link is slow).
         lines = [ln for ln in out.stderr.splitlines() if ln.strip()]
-        detail = lines[-1].strip()[:200] if lines else "empty output"
+        detail = lines[-1].strip()[:200] if lines else "no stderr (stdout not shown: it can hold the key)"
         _LAST_ERROR[name] = f"`tokens show` exited {out.returncode}: {detail}"
     return value
 
